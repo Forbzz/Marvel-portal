@@ -66,7 +66,7 @@ const CharItem = ({ char, onClick }) => {
     const { id, name, thumbnail } = char
     let objectFit = "cover"
 
-    if (thumbnail.indexOf("image_not_available") !== -1) {
+    if (thumbnail.includes("image_not_available")) {
         objectFit = 'contain'
     }
 
