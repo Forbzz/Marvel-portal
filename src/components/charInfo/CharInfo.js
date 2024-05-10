@@ -5,7 +5,6 @@ import Spinner from '../spinner/Spinner'
 import Skeleton from '../skeleton/Skeleton'
 
 import './charInfo.scss';
-import thor from '../../resources/img/thor.jpeg';
 
 class CharInfo extends Component {
 
@@ -92,7 +91,7 @@ const View = ({ char }) => {
     const arr = []
 
     for (let i = 0; i < comics.length; i++) {
-        if(i > 9) break
+        if (i > 9) break
         arr.push(
             <li key={i} className="char__comics-item">
                 {comics[i].name}
