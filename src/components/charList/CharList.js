@@ -1,65 +1,76 @@
 import './charList.scss';
-import abyss from '../../resources/img/abyss.jpg';
-import { Component } from 'react';
+import { Component, useEffect, useState } from 'react';
 import MarvelService from '../../services/MarvelService';
+import PropTypes from 'prop-types'
 
-class CharList extends Component {
+const CharList = (props) => {
 
-    state = {
-        chars: [],
-        loading: true,
-        error: false
+    const [chars, setChars] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(false)
+    const [newItemLoading, setNewItemLoading] = useState(false)
+    const [offset, setOffset] = useState(210)
+    const [charEnded, setCharEnded] = useState(false)
+
+    const marvelService = new MarvelService()
+
+    useEffect(() => {
+        //onRequest()
+    }, [])
+
+    const onRequest = (offset) => {
+        onCharListLoading()
+        marvelService.getAllCharacters(offset)
+            .then(onCharsLoaded)
+            .catch(onError)
     }
 
-    marvelService = new MarvelService()
+    const onCharsLoaded = (newChars) => {
+        let ended = false
+        if (newChars.length < 9) {
+            ended = true
+        }
 
-    componentDidMount() {
-        this.loadChars()
+        setChars(chars => [...chars, ...newChars])
+        setLoading(false)
+        setNewItemLoading(false)
+        setOffset(offset => offset + 9)
+        setCharEnded(ended)
     }
 
-    onCharsLoaded = (chars) => {
-        this.setState({
-            chars
-        })
+    const onCharListLoading = () => {
+        setNewItemLoading(true)
     }
 
-    onError = () => {
-        this.setState({
-            loading: false,
-            error: true
-        })
+    const onError = () => {
+        setLoading(false)
+        setError(true)
     }
 
-    loadChars = () => {
-        this.marvelService
-            .getAllCharacters()
-            .then(this.onCharsLoaded)
-            .catch(this.onError)
-    }
-
-
-    render = () => {
-        const { chars, loading, error } = this.state
-        const elements = chars.map(char => {
-            return (
-                <CharItem
-                    key={char.id}
-                    char={char}
-                    onClick={this.props.onCharSelected}
-                />
-            )
-        })
+    const elements = chars.map(char => {
         return (
-            <div className="char__list">
-                <ul className="char__grid">
-                    {elements}
-                </ul>
-                <button className="button button__main button__long">
-                    <div className="inner">load more</div>
-                </button>
-            </div>
+            <CharItem
+                key={char.id}
+                char={char}
+                onClick={props.onCharSelected}
+            />
         )
-    }
+    })
+    return (
+        <div className="char__list">
+            <ul className="char__grid">
+                {elements}
+            </ul>
+            <button
+                className="button button__main button__long"
+                disabled={newItemLoading}
+                style={{ 'display': charEnded ? 'none' : 'block' }}
+                onClick={() => onRequest(offset)}
+            >
+                <div className="inner">load more</div>
+            </button>
+        </div>
+    )
 }
 
 const CharItem = ({ char, onClick }) => {
@@ -78,5 +89,7 @@ const CharItem = ({ char, onClick }) => {
         </li>
     )
 }
+
+
 
 export default CharList;
